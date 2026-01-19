@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   ScrollView,
   Text,
@@ -49,6 +49,12 @@ export default function HomeScreen() {
   const [historyMobileId, setHistoryMobileId] = useState<string | null>(null);
   const [showStatistics, setShowStatistics] = useState(false);
   const [showReports, setShowReports] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Forzar re-render cuando cambia el estado
+  useEffect(() => {
+    setRefreshKey(prev => prev + 1);
+  }, [state]);
 
   const handleAddMobile = () => {
     const id = mobileInput.trim();
@@ -83,6 +89,8 @@ export default function HomeScreen() {
       assignCarrera(modalState.mobileId, modalState.queueType, monto);
       setModalState({ isOpen: false, mobileId: null, queueType: null });
       inputRef.current?.focus();
+      // Forzar actualización
+      setRefreshKey(prev => prev + 1);
     }
   };
 
@@ -94,11 +102,15 @@ export default function HomeScreen() {
   const handleCede = (mobileId: string, queueType: QueueType) => {
     cedeTurno(mobileId, queueType);
     inputRef.current?.focus();
+    // Forzar actualización
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleRemove = (mobileId: string) => {
     removeMobile(mobileId);
     inputRef.current?.focus();
+    // Forzar actualización
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleViewHistory = (mobileId: string) => {
@@ -107,13 +119,25 @@ export default function HomeScreen() {
 
   const handleEditCarrera = (uid: string, nuevoMonto: number) => {
     if (historyMobileId) {
-      editCarrera(historyMobileId, uid, nuevoMonto);
+      try {
+        editCarrera(historyMobileId, uid, nuevoMonto);
+        // Forzar actualización
+        setRefreshKey(prev => prev + 1);
+      } catch (error) {
+        Alert.alert('Error', 'No se pudo editar el registro');
+      }
     }
   };
 
   const handleDeleteCarrera = (uid: string) => {
     if (historyMobileId) {
-      deleteCarrera(historyMobileId, uid);
+      try {
+        deleteCarrera(historyMobileId, uid);
+        // Forzar actualización
+        setRefreshKey(prev => prev + 1);
+      } catch (error) {
+        Alert.alert('Error', 'No se pudo eliminar el registro');
+      }
     }
   };
 
@@ -128,6 +152,7 @@ export default function HomeScreen() {
           onPress: () => {
             resetDay();
             setMobileInput('');
+            setRefreshKey(prev => prev + 1);
             inputRef.current?.focus();
           },
           style: 'destructive',
@@ -159,11 +184,15 @@ export default function HomeScreen() {
   if (historyMobileId && state.moviles[historyMobileId]) {
     return (
       <MobileHistoryScreen
+        key={`history-${historyMobileId}-${refreshKey}`}
         mobile={state.moviles[historyMobileId]}
         onEdit={handleEditCarrera}
         onDelete={handleDeleteCarrera}
         correctionMode={state.correctionMode}
-        onClose={() => setHistoryMobileId(null)}
+        onClose={() => {
+          setHistoryMobileId(null);
+          setRefreshKey(prev => prev + 1);
+        }}
       />
     );
   }
@@ -171,6 +200,7 @@ export default function HomeScreen() {
   return (
     <ScreenContainer className="flex-1">
       <ScrollView
+        key={`main-${refreshKey}`}
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
@@ -212,76 +242,64 @@ export default function HomeScreen() {
           </View>
 
           {/* Input y Controles */}
-          <View style={styles.inputSection}>
-            <View style={styles.inputRow}>
-              <TextInput
-                ref={inputRef}
-                style={[
-                  styles.input,
-                  {
-                    color: colors.foreground,
-                    borderColor: colors.border,
-                    backgroundColor: colors.background,
-                  },
-                ]}
-                placeholder="ID movil"
-                placeholderTextColor={colors.muted}
-                keyboardType="numeric"
-                value={mobileInput}
-                onChangeText={setMobileInput}
-                returnKeyType="done"
-                onSubmitEditing={handleAddMobile}
-              />
-              <Pressable
-                style={({ pressed }) => [
-                  styles.addButton,
-                  {
-                    backgroundColor: colors.primary,
-                    opacity: pressed ? 0.8 : 1,
-                  },
-                ]}
-                onPress={handleAddMobile}
-              >
-                <Text style={[styles.addButtonText, { color: colors.background }]}>
-                  +
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* Controles */}
-            <View style={styles.controlsRow}>
-              <View style={styles.correctionToggle}>
-                <Text style={[styles.toggleLabel, { color: colors.foreground }]}>
-                  Corr
-                </Text>
-                <Switch
-                  value={state.correctionMode}
-                  onValueChange={toggleCorrectionMode}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor={state.correctionMode ? colors.primary : colors.muted}
-                />
-              </View>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.resetButton,
-                  {
-                    borderColor: colors.error,
-                    opacity: pressed ? 0.8 : 1,
-                  },
-                ]}
-                onPress={handleResetDay}
-              >
-                <Text style={[styles.resetButtonText, { color: colors.error }]}>
-                  Reset
-                </Text>
-              </Pressable>
-            </View>
+          <View style={[styles.inputSection, { backgroundColor: colors.surface }]}>
+            <TextInput
+              ref={inputRef}
+              style={[
+                styles.input,
+                {
+                  color: colors.foreground,
+                  borderColor: colors.border,
+                  backgroundColor: colors.background,
+                },
+              ]}
+              placeholder="ID movil"
+              placeholderTextColor={colors.muted}
+              keyboardType="numeric"
+              value={mobileInput}
+              onChangeText={setMobileInput}
+              onSubmitEditing={handleAddMobile}
+              returnKeyType="done"
+            />
+            <Pressable
+              style={({ pressed }) => [
+                styles.addButton,
+                { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
+              ]}
+              onPress={handleAddMobile}
+            >
+              <Text style={[styles.addButtonText, { color: colors.background }]}>+</Text>
+            </Pressable>
           </View>
 
-          {/* Colas - Expandidas */}
+          {/* Controles */}
+          <View style={[styles.controlsSection, { backgroundColor: colors.surface }]}>
+            <View style={styles.controlRow}>
+              <Text style={[styles.controlLabel, { color: colors.foreground }]}>
+                Corr
+              </Text>
+              <Switch
+                value={state.correctionMode}
+                onValueChange={toggleCorrectionMode}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={state.correctionMode ? colors.primary : colors.muted}
+              />
+            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.resetButton,
+                { opacity: pressed ? 0.8 : 1 },
+              ]}
+              onPress={handleResetDay}
+            >
+              <Text style={[styles.resetButtonText, { color: colors.error }]}>Reset</Text>
+            </Pressable>
+          </View>
+
+          {/* Colas */}
           <View style={styles.queuesContainer}>
             <QueueColumnV2
-              key="blanca"
+              key={`blanca-${refreshKey}`}
               queueType="blanca"
               mobileIds={state.colas.blanca}
               mobiles={state.moviles}
@@ -292,7 +310,7 @@ export default function HomeScreen() {
               correctionMode={state.correctionMode}
             />
             <QueueColumnV2
-              key="azul"
+              key={`azul-${refreshKey}`}
               queueType="azul"
               mobileIds={state.colas.azul}
               mobiles={state.moviles}
@@ -303,7 +321,7 @@ export default function HomeScreen() {
               correctionMode={state.correctionMode}
             />
             <QueueColumnV2
-              key="roja"
+              key={`roja-${refreshKey}`}
               queueType="roja"
               mobileIds={state.colas.roja}
               mobiles={state.moviles}
@@ -315,30 +333,17 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Resumen en footer */}
-          <View
-            style={[
-              styles.footerSummary,
-              {
-                backgroundColor: colors.surface,
-                borderTopColor: colors.border,
-              },
-            ]}
-          >
-            <View style={styles.summaryItem}>
-              <Text style={[styles.summaryLabel, { color: colors.muted }]}>
-                Caja
-              </Text>
-              <Text style={[styles.summaryValue, { color: colors.primary }]}>
-                ${state.totalCaja.toFixed(0)}
+          {/* Footer */}
+          <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
+            <View style={styles.footerItem}>
+              <Text style={[styles.footerLabel, { color: colors.muted }]}>Caja</Text>
+              <Text style={[styles.footerValue, { color: colors.primary }]}>
+                ${state.totalCaja.toFixed(2)}
               </Text>
             </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryItem}>
-              <Text style={[styles.summaryLabel, { color: colors.muted }]}>
-                Moviles
-              </Text>
-              <Text style={[styles.summaryValue, { color: colors.foreground }]}>
+            <View style={styles.footerItem}>
+              <Text style={[styles.footerLabel, { color: colors.muted }]}>Moviles</Text>
+              <Text style={[styles.footerValue, { color: colors.foreground }]}>
                 {Object.keys(state.moviles).length}
               </Text>
             </View>
@@ -360,21 +365,18 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    gap: 8,
   },
   header: {
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
   },
   subtitle: {
@@ -383,34 +385,32 @@ const styles = StyleSheet.create({
   },
   headerButtons: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
   },
   headerButton: {
-    width: 38,
-    height: 38,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   headerButtonText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '700',
   },
   inputSection: {
-    gap: 8,
-  },
-  inputRow: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
   },
   input: {
     flex: 1,
     borderWidth: 1,
     borderRadius: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    fontSize: 13,
-    fontWeight: '500',
+    fontSize: 14,
   },
   addButton: {
     width: 40,
@@ -420,68 +420,62 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addButtonText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
   },
-  controlsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
-  correctionToggle: {
-    flex: 1,
+  controlsSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
   },
-  toggleLabel: {
-    fontSize: 11,
+  controlRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  controlLabel: {
+    fontSize: 12,
     fontWeight: '600',
   },
   resetButton: {
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#EF4444',
   },
   resetButtonText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   queuesContainer: {
     flex: 1,
     flexDirection: 'row',
-    gap: 6,
-    minHeight: 300,
-  },
-  footerSummary: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    paddingHorizontal: 12,
+    gap: 8,
+    paddingHorizontal: 8,
     paddingVertical: 8,
-    borderRadius: 6,
-    alignItems: 'center',
+  },
+  footer: {
+    flexDirection: 'row',
     justifyContent: 'space-around',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
   },
-  summaryItem: {
+  footerItem: {
     alignItems: 'center',
   },
-  summaryLabel: {
-    fontSize: 10,
+  footerLabel: {
+    fontSize: 11,
     fontWeight: '500',
   },
-  summaryValue: {
-    fontSize: 13,
+  footerValue: {
+    fontSize: 14,
     fontWeight: '700',
     marginTop: 2,
-  },
-  summaryDivider: {
-    width: 1,
-    height: 30,
   },
 });
