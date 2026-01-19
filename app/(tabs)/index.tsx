@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { ScreenContainer } from '@/components/screen-container';
-import { useTaxiStoreV2 } from '@/hooks/use-taxi-store-v2';
+import { useTaxiStoreHybrid } from '@/hooks/use-taxi-store-hybrid';
 import { QueueColumnV2 } from '@/components/queue-column-v2';
 import { MontoModal } from '@/components/monto-modal';
 import { MobileHistoryScreen } from '@/components/mobile-history-screen';
@@ -32,6 +32,7 @@ export default function HomeScreen() {
   const {
     state,
     currentDate,
+    syncing,
     addMobile,
     assignCarrera,
     cedeTurno,
@@ -41,7 +42,7 @@ export default function HomeScreen() {
     deleteCarrera,
     resetDay,
     getAllDailyHistory,
-  } = useTaxiStoreV2();
+  } = useTaxiStoreHybrid();
 
   const inputRef = useRef<TextInput>(null);
   const [mobileInput, setMobileInput] = useState('');
@@ -262,10 +263,10 @@ export default function HomeScreen() {
           <View style={[styles.header, { backgroundColor: colors.surface }]}>
             <View>
               <Text style={[styles.title, { color: colors.foreground }]}>
-                Full Express
+                Full Express {syncing ? '🔄' : '☁️'}
               </Text>
               <Text style={[styles.subtitle, { color: colors.muted }]}>
-                {currentDate}
+                {currentDate} {syncing ? '(Sincronizando...)' : ''}
               </Text>
             </View>
             <View style={styles.headerButtons}>

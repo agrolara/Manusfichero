@@ -142,3 +142,16 @@
 - [ ] Actualizar assets (icon.png, splash-icon.png, favicon.png)
 - [ ] Actualizar app.config.ts con información de branding
 - [ ] Crear checkpoint final
+
+
+## Mejoras Fase 13: Supabase Real-Time (Datos en la Nube)
+- [x] Crear tabla de colas en Supabase (para almacenar móviles en tiempo real)
+- [x] Crear tabla de carreras en Supabase (para historial de transacciones)
+- [x] Implementar lectura en tiempo real desde Supabase al iniciar
+- [x] Implementar escritura en tiempo real a Supabase en cada cambio
+- [x] Crear hook useRealtimeStore para reemplazar useTaxiStoreV2
+- [x] Implementar sincronización bidireccional
+- [x] Agregar caché local opcional para modo offline
+- [x] Probar sincronización entre múltiples dispositivos
+- [x] Verificar que los datos persisten en Supabase
+- [x] Crear checkpoint final

@@ -1,7 +1,7 @@
 import { AppState } from '@/lib/types';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://okmzqnjvxrptqphzjnjq.supabase.co';
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_jSJKMqyhm_hpZ4O-CnnmWg_8YbHJYU8';
 
 // User ID for the single password authentication
 const FIXED_USER_ID = '4c0ed019-874a-4fc4-ad88-7945338dbce8';
