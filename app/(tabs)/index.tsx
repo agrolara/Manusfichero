@@ -21,6 +21,8 @@ import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
 import { LoginModal } from '@/components/login-modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AdminPanel } from '@/components/admin-panel';
+import { createUser } from '@/lib/supabase-users';
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -53,6 +55,7 @@ export default function HomeScreen() {
   const [showReports, setShowReports] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   // Forzar re-render cuando cambia el estado
@@ -199,6 +202,14 @@ export default function HomeScreen() {
         style: 'destructive',
       },
     ]);
+  };
+
+  const handleAddUser = async (email: string, password: string) => {
+    try {
+      await createUser(email, password);
+    } catch (error) {
+      throw error;
+    }
   };
 
   if (showReports) {
@@ -414,6 +425,12 @@ export default function HomeScreen() {
         isVisible={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLogin={handleLogin}
+      />
+
+      <AdminPanel
+        isVisible={showAdminPanel}
+        onClose={() => setShowAdminPanel(false)}
+        onAddUser={handleAddUser}
       />
 </ScreenContainer>
   );
