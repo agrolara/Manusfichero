@@ -3,8 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Crear directorio de salida
-const outDir = path.join(__dirname, '../dist/web');
+// Crear directorio de salida (Vercel espera 'public')
+const outDir = path.join(__dirname, '../public');
 if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir, { recursive: true });
 }
