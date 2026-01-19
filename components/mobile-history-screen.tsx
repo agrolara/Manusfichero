@@ -30,27 +30,65 @@ export function MobileHistoryScreen({
   const colors = useColors();
   const [editingUid, setEditingUid] = useState<string | null>(null);
   const [editMonto, setEditMonto] = useState('');
+  const [editError, setEditError] = useState('');
+
+  const validateMonto = (value: string): { valid: boolean; error: string } => {
+    if (!value || value.trim() === '') {
+      return { valid: false, error: 'El monto no puede estar vacio' };
+    }
+
+    const numValue = parseFloat(value);
+
+    if (isNaN(numValue)) {
+      return { valid: false, error: 'Ingresa un numero valido' };
+    }
+
+    if (numValue <= 0) {
+      return { valid: false, error: 'El monto debe ser mayor a 0' };
+    }
+
+    if (numValue > 999999) {
+      return { valid: false, error: 'El monto es demasiado grande' };
+    }
+
+    return { valid: true, error: '' };
+  };
 
   const handleEditPress = (uid: string, currentMonto: number) => {
     setEditingUid(uid);
     setEditMonto(currentMonto.toString());
+    setEditError('');
   };
 
   const handleEditConfirm = () => {
-    const nuevoMonto = parseFloat(editMonto);
-    if (!isNaN(nuevoMonto) && nuevoMonto > 0 && editingUid) {
+    const validation = validateMonto(editMonto);
+
+    if (!validation.valid) {
+      setEditError(validation.error);
+      return;
+    }
+
+    if (!editingUid) {
+      setEditError('Error: UID no encontrado');
+      return;
+    }
+
+    try {
+      const nuevoMonto = parseFloat(editMonto);
       onEdit(editingUid, nuevoMonto);
       setEditingUid(null);
       setEditMonto('');
-    } else {
-      Alert.alert('Error', 'Ingresa un monto valido');
+      setEditError('');
+      Alert.alert('Exito', 'Monto actualizado correctamente');
+    } catch (error) {
+      setEditError('Error al actualizar el monto');
     }
   };
 
-  const handleDeletePress = (uid: string) => {
+  const handleDeletePress = (uid: string, monto: number, tipo: string) => {
     Alert.alert(
       'Eliminar Registro',
-      'Estas seguro de que deseas eliminar este registro?',
+      `Estas seguro de que deseas eliminar este registro?\n\nTipo: ${tipo.toUpperCase()}\nMonto: $${monto.toFixed(2)}`,
       [
         { text: 'Cancelar', onPress: () => {} },
         {
@@ -58,6 +96,7 @@ export function MobileHistoryScreen({
           onPress: () => {
             try {
               onDelete(uid);
+              Alert.alert('Exito', 'Registro eliminado correctamente');
             } catch (error) {
               Alert.alert('Error', 'No se pudo eliminar el registro');
             }
@@ -66,6 +105,12 @@ export function MobileHistoryScreen({
         },
       ]
     );
+  };
+
+  const handleEditCancel = () => {
+    setEditingUid(null);
+    setEditMonto('');
+    setEditError('');
   };
 
   return (
@@ -129,7 +174,7 @@ export function MobileHistoryScreen({
       {/* Historial */}
       <View style={styles.historyHeader}>
         <Text style={[styles.historyTitle, { color: colors.foreground }]}>
-          Historial de Carreras
+          Historial de Carreras ({mobile.historial.length})
         </Text>
       </View>
 
@@ -141,7 +186,7 @@ export function MobileHistoryScreen({
             </Text>
           </View>
         ) : (
-          mobile.historial.map((record) => (
+          mobile.historial.map((record, index) => (
             <View
               key={record.uid}
               style={[
@@ -154,9 +199,14 @@ export function MobileHistoryScreen({
             >
               <View style={styles.recordContent}>
                 <View style={styles.recordRow}>
-                  <Text style={[styles.recordType, { color: colors.foreground }]}>
-                    Tipo: {record.tipo.toUpperCase()}
-                  </Text>
+                  <View style={styles.recordInfo}>
+                    <Text style={[styles.recordNumber, { color: colors.muted }]}>
+                      #{index + 1}
+                    </Text>
+                    <Text style={[styles.recordType, { color: colors.foreground }]}>
+                      {record.tipo.toUpperCase()}
+                    </Text>
+                  </View>
                   <Text style={[styles.recordMonto, { color: colors.primary }]}>
                     ${record.monto.toFixed(2)}
                   </Text>
@@ -188,7 +238,9 @@ export function MobileHistoryScreen({
                         opacity: pressed ? 0.6 : 1,
                       },
                     ]}
-                    onPress={() => handleDeletePress(record.uid)}
+                    onPress={() =>
+                      handleDeletePress(record.uid, record.monto, record.tipo)
+                    }
                   >
                     <Text style={[styles.actionText, { color: colors.error }]}>X</Text>
                   </Pressable>
@@ -219,21 +271,39 @@ export function MobileHistoryScreen({
             <Text style={[styles.editModalTitle, { color: colors.foreground }]}>
               Editar Monto
             </Text>
+
+            <Text style={[styles.editModalLabel, { color: colors.muted }]}>
+              Ingresa el nuevo monto
+            </Text>
+
             <TextInput
               style={[
                 styles.editInput,
                 {
                   color: colors.foreground,
-                  borderColor: colors.border,
+                  borderColor: editError ? colors.error : colors.border,
                   backgroundColor: colors.background,
+                  borderWidth: editError ? 2 : 1,
                 },
               ]}
               keyboardType="decimal-pad"
-              placeholder="Nuevo monto"
+              placeholder="0.00"
               placeholderTextColor={colors.muted}
               value={editMonto}
-              onChangeText={setEditMonto}
+              onChangeText={(text) => {
+                setEditMonto(text);
+                setEditError('');
+              }}
+              returnKeyType="done"
+              onSubmitEditing={handleEditConfirm}
             />
+
+            {editError && (
+              <Text style={[styles.errorText, { color: colors.error }]}>
+                {editError}
+              </Text>
+            )}
+
             <View style={styles.editModalButtons}>
               <Pressable
                 style={({ pressed }) => [
@@ -243,10 +313,7 @@ export function MobileHistoryScreen({
                     opacity: pressed ? 0.8 : 1,
                   },
                 ]}
-                onPress={() => {
-                  setEditingUid(null);
-                  setEditMonto('');
-                }}
+                onPress={handleEditCancel}
               >
                 <Text style={[styles.editModalButtonText, { color: colors.background }]}>
                   Cancelar
@@ -357,6 +424,16 @@ const styles = StyleSheet.create({
   recordRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  recordInfo: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  recordNumber: {
+    fontSize: 10,
+    fontWeight: '600',
   },
   recordType: {
     fontSize: 12,
@@ -391,30 +468,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editModalContent: {
-    width: '80%',
+    width: '85%',
     borderRadius: 12,
     borderWidth: 1,
     padding: 20,
-    gap: 16,
+    gap: 12,
   },
   editModalTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
+  },
+  editModalLabel: {
+    fontSize: 12,
+    fontWeight: '500',
   },
   editInput: {
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  errorText: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: -8,
   },
   editModalButtons: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 8,
   },
   editModalButton: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
