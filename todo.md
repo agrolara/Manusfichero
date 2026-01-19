@@ -123,3 +123,14 @@
 - [x] Probar layout expandido
 - [x] Probar reportes
 - [x] Crear checkpoint final
+
+
+## Mejoras Fase 11: Autenticación con Supabase
+- [ ] Configurar proyecto Supabase
+- [ ] Crear tablas en Supabase (users, daily_data, carrera_history)
+- [ ] Crear usuario administrador (agro_lara@yahoo.com / 12345678)
+- [ ] Crear pantalla de login
+- [ ] Integrar autenticación con Supabase
+- [ ] Sincronizar datos locales con Supabase
+- [ ] Agregar logout
+- [ ] Probar flujo completo de login/logout
