@@ -19,15 +19,11 @@ import { StatisticsScreen } from '@/components/statistics-screen';
 import { ReportsScreen } from '@/components/reports-screen';
 import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
-import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
-import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   const colors = useColors();
   const screenWidth = Dimensions.get('window').width;
   const isMobile = screenWidth < 600;
-  const { logout } = useSupabaseAuth();
-  const router = useRouter();
 
   const {
     state,
