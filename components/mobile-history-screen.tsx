@@ -56,7 +56,11 @@ export function MobileHistoryScreen({
         {
           text: 'Eliminar',
           onPress: () => {
-            onDelete(uid);
+            try {
+              onDelete(uid);
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo eliminar el registro');
+            }
           },
           style: 'destructive',
         },
@@ -224,33 +228,18 @@ export function MobileHistoryScreen({
                   backgroundColor: colors.background,
                 },
               ]}
+              keyboardType="decimal-pad"
               placeholder="Nuevo monto"
               placeholderTextColor={colors.muted}
-              keyboardType="decimal-pad"
               value={editMonto}
               onChangeText={setEditMonto}
             />
             <View style={styles.editModalButtons}>
               <Pressable
                 style={({ pressed }) => [
-                  styles.editButton,
+                  styles.editModalButton,
                   {
-                    backgroundColor: colors.primary,
-                    opacity: pressed ? 0.8 : 1,
-                  },
-                ]}
-                onPress={handleEditConfirm}
-              >
-                <Text style={[styles.editButtonText, { color: colors.background }]}>
-                  Confirmar
-                </Text>
-              </Pressable>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.editButton,
-                  {
-                    borderColor: colors.error,
-                    borderWidth: 1,
+                    backgroundColor: colors.muted,
                     opacity: pressed ? 0.8 : 1,
                   },
                 ]}
@@ -259,8 +248,22 @@ export function MobileHistoryScreen({
                   setEditMonto('');
                 }}
               >
-                <Text style={[styles.editButtonText, { color: colors.error }]}>
+                <Text style={[styles.editModalButtonText, { color: colors.background }]}>
                   Cancelar
+                </Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.editModalButton,
+                  {
+                    backgroundColor: colors.primary,
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+                onPress={handleEditConfirm}
+              >
+                <Text style={[styles.editModalButtonText, { color: colors.background }]}>
+                  Guardar
                 </Text>
               </Pressable>
             </View>
@@ -300,8 +303,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    padding: 12,
     gap: 8,
   },
   summaryRow: {
@@ -313,8 +315,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   summaryValue: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
   },
   historyHeader: {
     paddingHorizontal: 16,
@@ -322,7 +324,7 @@ const styles = StyleSheet.create({
   },
   historyTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   historyList: {
     flex: 1,
@@ -361,7 +363,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   recordMonto: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
   },
   recordTime: {
@@ -372,16 +374,16 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   actionButton: {
-    borderWidth: 1,
+    width: 32,
+    height: 32,
     borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '700',
   },
   editModalContainer: {
     flex: 1,
@@ -389,18 +391,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editModalContent: {
-    borderWidth: 1,
+    width: '80%',
     borderRadius: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    width: '85%',
-    maxWidth: 400,
-    gap: 12,
+    borderWidth: 1,
+    padding: 20,
+    gap: 16,
   },
   editModalTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: '700',
   },
   editInput: {
     borderWidth: 1,
@@ -412,17 +411,15 @@ const styles = StyleSheet.create({
   editModalButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 8,
   },
-  editButton: {
+  editModalButton: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  editButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
+  editModalButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
   },
 });
