@@ -53,3 +53,39 @@
 - [x] Verificar modo de corrección
 - [x] Documentar instrucciones de uso
 - [x] Entregar aplicación al usuario
+
+
+## Mejoras Fase 1: Visual para Móvil
+- [x] Optimizar layout para pantallas pequeñas
+- [x] Reducir tamaño de botones y fuentes para móvil
+- [x] Mejorar espaciado y padding
+- [x] Hacer colas scrolleables horizontalmente en móvil
+- [x] Ajustar altura de colas para móvil
+
+## Mejoras Fase 2: Almacenamiento por Días
+- [x] Crear estructura de datos con fecha como clave
+- [x] Guardar datos separados por día
+- [x] Implementar limpieza automática de datos mayores a 30 días
+- [x] Cargar datos del día actual al iniciar
+
+## Mejoras Fase 3: Reinicio de Día
+- [x] Detectar cambio de día automáticamente
+- [x] Crear botón de reinicio manual de día
+- [x] Confirmar antes de reiniciar
+- [x] Guardar datos del día anterior antes de reiniciar
+- [x] Mostrar fecha actual en interfaz
+
+## Mejoras Fase 4: Estadísticas Detalladas
+- [x] Crear pantalla de estadísticas
+- [x] Mostrar tabla con cada móvil y sus carreras
+- [x] Mostrar totales por móvil (B, A, R, monto)
+- [x] Mostrar totales generales
+- [x] Permitir ver historial de días anteriores
+- [x] Agregar navegación entre pantallas
+
+## Mejoras Fase 5: Testing y Entrega
+- [x] Probar visual en dispositivo móvil
+- [x] Verificar almacenamiento por días
+- [x] Verificar reinicio automático
+- [x] Verificar estadísticas
+- [x] Crear checkpoint final

@@ -8,20 +8,26 @@ import {
   StyleSheet,
   Alert,
   Switch,
+  Dimensions,
 } from 'react-native';
 import { ScreenContainer } from '@/components/screen-container';
-import { useTaxiStore } from '@/hooks/use-taxi-store';
+import { useTaxiStoreV2 } from '@/hooks/use-taxi-store-v2';
 import { QueueColumn } from '@/components/queue-column';
 import { MontoModal } from '@/components/monto-modal';
 import { SummaryTable } from '@/components/summary-table';
 import { MobileHistoryScreen } from '@/components/mobile-history-screen';
+import { StatisticsScreen } from '@/components/statistics-screen';
 import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
 
 export default function HomeScreen() {
   const colors = useColors();
+  const screenWidth = Dimensions.get('window').width;
+  const isMobile = screenWidth < 600;
+
   const {
     state,
+    currentDate,
     addMobile,
     assignCarrera,
     cedeTurno,
@@ -29,7 +35,8 @@ export default function HomeScreen() {
     toggleCorrectionMode,
     editCarrera,
     deleteCarrera,
-  } = useTaxiStore();
+    resetDay,
+  } = useTaxiStoreV2();
 
   const inputRef = useRef<TextInput>(null);
   const [mobileInput, setMobileInput] = useState('');
@@ -39,6 +46,7 @@ export default function HomeScreen() {
     queueType: null,
   });
   const [historyMobileId, setHistoryMobileId] = useState<string | null>(null);
+  const [showStatistics, setShowStatistics] = useState(false);
 
   const handleAddMobile = () => {
     const id = mobileInput.trim();
@@ -47,7 +55,7 @@ export default function HomeScreen() {
       setMobileInput('');
       inputRef.current?.focus();
     } else {
-      Alert.alert('Error', 'Ingresa un ID numérico válido');
+      Alert.alert('Error', 'Ingresa un ID numerico valido');
     }
   };
 
@@ -98,6 +106,36 @@ export default function HomeScreen() {
     }
   };
 
+  const handleResetDay = () => {
+    Alert.alert(
+      'Reiniciar Dia',
+      'Estas seguro de que deseas reiniciar el dia? Se guardaran los datos actuales.',
+      [
+        { text: 'Cancelar', onPress: () => {} },
+        {
+          text: 'Reiniciar',
+          onPress: () => {
+            resetDay();
+            setMobileInput('');
+            inputRef.current?.focus();
+          },
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
+  if (showStatistics) {
+    return (
+      <StatisticsScreen
+        mobiles={state.moviles}
+        totalCaja={state.totalCaja}
+        currentDate={currentDate}
+        onClose={() => setShowStatistics(false)}
+      />
+    );
+  }
+
   if (historyMobileId && state.moviles[historyMobileId]) {
     return (
       <MobileHistoryScreen
@@ -119,15 +157,28 @@ export default function HomeScreen() {
         <View style={styles.container}>
           {/* Header */}
           <View style={[styles.header, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.title, { color: colors.foreground }]}>
-              Full Express
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.muted }]}>
-              Sistema de Gestión de Taxis
-            </Text>
+            <View>
+              <Text style={[styles.title, { color: colors.foreground }]}>
+                Full Express
+              </Text>
+              <Text style={[styles.subtitle, { color: colors.muted }]}>
+                {currentDate}
+              </Text>
+            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.statsButton,
+                { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
+              ]}
+              onPress={() => setShowStatistics(true)}
+            >
+              <Text style={[styles.statsButtonText, { color: colors.background }]}>
+                Stat
+              </Text>
+            </Pressable>
           </View>
 
-          {/* Input y Toggle */}
+          {/* Input y Controles */}
           <View style={styles.inputSection}>
             <View style={styles.inputRow}>
               <TextInput
@@ -140,7 +191,7 @@ export default function HomeScreen() {
                     backgroundColor: colors.background,
                   },
                 ]}
-                placeholder="Ingresa ID de móvil"
+                placeholder="ID movil"
                 placeholderTextColor={colors.muted}
                 keyboardType="numeric"
                 value={mobileInput}
@@ -164,22 +215,38 @@ export default function HomeScreen() {
               </Pressable>
             </View>
 
-            {/* Toggle Correction Mode */}
-            <View style={styles.correctionToggle}>
-              <Text style={[styles.toggleLabel, { color: colors.foreground }]}>
-                Modo Corrección
-              </Text>
-              <Switch
-                value={state.correctionMode}
-                onValueChange={toggleCorrectionMode}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor={state.correctionMode ? colors.primary : colors.muted}
-              />
+            {/* Controles */}
+            <View style={styles.controlsRow}>
+              <View style={styles.correctionToggle}>
+                <Text style={[styles.toggleLabel, { color: colors.foreground }]}>
+                  Corr
+                </Text>
+                <Switch
+                  value={state.correctionMode}
+                  onValueChange={toggleCorrectionMode}
+                  trackColor={{ false: colors.border, true: colors.primary }}
+                  thumbColor={state.correctionMode ? colors.primary : colors.muted}
+                />
+              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.resetButton,
+                  {
+                    borderColor: colors.error,
+                    opacity: pressed ? 0.8 : 1,
+                  },
+                ]}
+                onPress={handleResetDay}
+              >
+                <Text style={[styles.resetButtonText, { color: colors.error }]}>
+                  Reset
+                </Text>
+              </Pressable>
             </View>
           </View>
 
           {/* Colas */}
-          <View style={styles.queuesContainer}>
+          <View style={[styles.queuesContainer, isMobile && styles.queuesContainerMobile]}>
             <QueueColumn
               queueType="blanca"
               mobileIds={state.colas.blanca}
@@ -212,10 +279,12 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Resumen */}
-          <View style={styles.summaryContainer}>
-            <SummaryTable mobiles={state.moviles} totalCaja={state.totalCaja} />
-          </View>
+          {/* Resumen - Solo en web */}
+          {!isMobile && (
+            <View style={styles.summaryContainer}>
+              <SummaryTable mobiles={state.moviles} totalCaja={state.totalCaja} />
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -233,70 +302,105 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    gap: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    gap: 8,
   },
   header: {
     borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 6,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
   },
   subtitle: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: 2,
   },
-  inputSection: {
-    gap: 12,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  addButton: {
-    width: 44,
-    height: 44,
+  statsButton: {
+    width: 40,
+    height: 40,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  addButtonText: {
-    fontSize: 20,
+  statsButtonText: {
+    fontSize: 10,
     fontWeight: '700',
   },
+  inputSection: {
+    gap: 8,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonText: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  controlsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
   correctionToggle: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
   },
   toggleLabel: {
-    fontSize: 12,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  resetButton: {
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resetButtonText: {
+    fontSize: 11,
     fontWeight: '600',
   },
   queuesContainer: {
     flexDirection: 'row',
-    gap: 8,
-    height: 300,
+    gap: 6,
+    height: 280,
+  },
+  queuesContainerMobile: {
+    height: 250,
   },
   summaryContainer: {
-    marginTop: 8,
-    marginBottom: 12,
+    marginTop: 6,
+    marginBottom: 8,
   },
 });
