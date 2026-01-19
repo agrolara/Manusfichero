@@ -20,5 +20,5 @@ RUN pnpm build
 # Exponer puerto
 EXPOSE 3000
 
-# Comando para iniciar (ejecutar directamente el archivo JS compilado)
-CMD ["node", "--input-type=module", "dist/index.js"]
+# Comando para iniciar
+CMD ["node", "dist/start.cjs"]
