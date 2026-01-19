@@ -1,9 +1,10 @@
 {
-  "buildCommand": "pnpm build",
-  "outputDirectory": "dist",
+  "buildCommand": "pnpm run build:web",
+  "outputDirectory": "dist/web",
   "framework": "expo",
   "env": {
     "SUPABASE_URL": "@supabase_url",
-    "SUPABASE_ANON_KEY": "@supabase_anon_key"
+    "SUPABASE_ANON_KEY": "@supabase_anon_key",
+    "EXPO_PUBLIC_API_URL": "@expo_public_api_url"
   }
 }
