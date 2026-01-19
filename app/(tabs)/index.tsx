@@ -19,6 +19,8 @@ import { StatisticsScreen } from '@/components/statistics-screen';
 import { ReportsScreen } from '@/components/reports-screen';
 import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
+import { LoginModal } from '@/components/login-modal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -50,11 +52,21 @@ export default function HomeScreen() {
   const [showStatistics, setShowStatistics] = useState(false);
   const [showReports, setShowReports] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   // Forzar re-render cuando cambia el estado
   useEffect(() => {
     setRefreshKey(prev => prev + 1);
   }, [state]);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = await AsyncStorage.getItem('current_user');
+      setCurrentUser(user);
+    };
+    loadUser();
+  }, []);
 
   const handleAddMobile = () => {
     const id = mobileInput.trim();
@@ -161,6 +173,29 @@ export default function HomeScreen() {
     );
   };
 
+  const handleLogin = async (email: string, password: string) => {
+    if (email === 'agro_lara@yahoo.com' && password === '12345678') {
+      await AsyncStorage.setItem('current_user', email);
+      setCurrentUser(email);
+    } else {
+      throw new Error('Credenciales invalidas');
+    }
+  };
+
+  const handleLogout = () => {
+    Alert.alert('Cerrar Sesion', 'Deseas cerrar sesion?', [
+      { text: 'Cancelar', onPress: () => {} },
+      {
+        text: 'Cerrar',
+        onPress: async () => {
+          await AsyncStorage.removeItem('current_user');
+          setCurrentUser(null);
+        },
+        style: 'destructive',
+      },
+    ]);
+  };
+
   if (showReports) {
     return (
       <ReportsScreen
@@ -236,6 +271,17 @@ export default function HomeScreen() {
               >
                 <Text style={[styles.headerButtonText, { color: colors.background }]}>
                   Rep
+                </Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.headerButton,
+                  { backgroundColor: currentUser ? '#ef4444' : colors.primary, opacity: pressed ? 0.8 : 1 },
+                ]}
+                onPress={currentUser ? handleLogout : () => setShowLoginModal(true)}
+              >
+                <Text style={[styles.headerButtonText, { color: colors.background }]}>
+                  {currentUser ? 'Salir' : 'Login'}
                 </Text>
               </Pressable>
             </View>
@@ -358,7 +404,13 @@ export default function HomeScreen() {
         onConfirm={handleMontoConfirm}
         onCancel={handleMontoCancel}
       />
-    </ScreenContainer>
+    
+      <LoginModal
+        isVisible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={handleLogin}
+      />
+</ScreenContainer>
   );
 }
 
