@@ -5,10 +5,17 @@
   },
   "deploy": {
     "startCommand": "pnpm start",
-    "restartPolicyMaxRetries": 5
+    "restartPolicyMaxRetries": 5,
+    "restartPolicyWindowSeconds": 60
   },
-  "env": {
+  "variables": {
     "NODE_ENV": "production",
-    "PORT": "3000"
+    "PORT": "3000",
+    "SUPABASE_URL": {
+      "description": "URL de tu proyecto Supabase (ej: https://xxxxx.supabase.co)"
+    },
+    "SUPABASE_ANON_KEY": {
+      "description": "Clave anónima de Supabase"
+    }
   }
 }
