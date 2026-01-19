@@ -53,10 +53,15 @@ export default function HomeScreen() {
   const handleAddMobile = () => {
     const id = mobileInput.trim();
     if (id && /^\d+$/.test(id)) {
-      addMobile(id);
-      if (addMobile(id) === undefined) {
-        // Si addMobile devuelve undefined, significa que no hizo nada (duplicado)
+      const yaExiste =
+        state.colas.blanca.includes(id) ||
+        state.colas.azul.includes(id) ||
+        state.colas.roja.includes(id);
+
+      if (yaExiste) {
         Alert.alert('Aviso', 'Este movil ya esta en las colas');
+      } else {
+        addMobile(id);
       }
       setMobileInput('');
       inputRef.current?.focus();
@@ -276,6 +281,7 @@ export default function HomeScreen() {
           {/* Colas - Expandidas */}
           <View style={styles.queuesContainer}>
             <QueueColumnV2
+              key="blanca"
               queueType="blanca"
               mobileIds={state.colas.blanca}
               mobiles={state.moviles}
@@ -286,6 +292,7 @@ export default function HomeScreen() {
               correctionMode={state.correctionMode}
             />
             <QueueColumnV2
+              key="azul"
               queueType="azul"
               mobileIds={state.colas.azul}
               mobiles={state.moviles}
@@ -296,6 +303,7 @@ export default function HomeScreen() {
               correctionMode={state.correctionMode}
             />
             <QueueColumnV2
+              key="roja"
               queueType="roja"
               mobileIds={state.colas.roja}
               mobiles={state.moviles}

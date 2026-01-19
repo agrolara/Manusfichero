@@ -127,14 +127,16 @@ function reducer(state: AppState, action: Action): AppState {
       const newState = { ...state };
 
       if (newState.moviles[mobileId]) {
-        newState.moviles[mobileId].cedeCount++;
-
+        // Siempre pasar al final de la cola
         const queue = newState.colas[queueType];
         const index = queue.indexOf(mobileId);
         if (index !== -1) {
           queue.splice(index, 1);
           queue.push(mobileId);
         }
+
+        // Incrementar contador de cede
+        newState.moviles[mobileId].cedeCount++;
 
         // Resetear contador despues del 3er cede
         if (newState.moviles[mobileId].cedeCount >= 3) {
