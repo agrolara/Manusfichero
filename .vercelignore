@@ -1,0 +1,13 @@
+# Ignorar archivos que Vercel no necesita
+node_modules
+.git
+.env.local
+.env.*.local
+dist
+build
+.next
+out
+coverage
+.DS_Store
+*.log
+server
