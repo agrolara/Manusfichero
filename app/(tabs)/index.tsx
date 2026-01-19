@@ -289,19 +289,6 @@ export default function HomeScreen() {
                   Rep
                 </Text>
               </Pressable>
-              {currentUser && (
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.headerButton,
-                    { backgroundColor: '#8b5cf6', opacity: pressed ? 0.8 : 1 },
-                  ]}
-                  onPress={() => setShowAdminPanel(true)}
-                >
-                  <Text style={[styles.headerButtonText, { color: colors.background }]}>
-                    Admin
-                  </Text>
-                </Pressable>
-              )}
               <Pressable
                 style={({ pressed }) => [
                   styles.headerButton,
