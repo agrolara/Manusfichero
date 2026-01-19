@@ -19,7 +19,7 @@ import { StatisticsScreen } from '@/components/statistics-screen';
 import { ReportsScreen } from '@/components/reports-screen';
 import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
-import { LoginModal } from '@/components/login-modal';
+import { SimplePasswordModal } from '@/components/simple-password-modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AdminPanel } from '@/components/admin-panel';
 import { createUser } from '@/lib/supabase-users';
@@ -54,7 +54,7 @@ export default function HomeScreen() {
   const [showStatistics, setShowStatistics] = useState(false);
   const [showReports, setShowReports] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(true);
     const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
 
@@ -66,7 +66,11 @@ export default function HomeScreen() {
   useEffect(() => {
     const loadUser = async () => {
       const user = await AsyncStorage.getItem('current_user');
-      setCurrentUser(user);
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setShowLoginModal(true);
+      }
     };
     loadUser();
   }, []);
@@ -176,13 +180,10 @@ export default function HomeScreen() {
     );
   };
 
-  const handleLogin = async (email: string, password: string) => {
-    if (email === 'agro_lara@yahoo.com' && password === '12345678') {
-      await AsyncStorage.setItem('current_user', email);
-      setCurrentUser(email);
-    } else {
-      throw new Error('Credenciales invalidas');
-    }
+  const handleLogin = async (password: string) => {
+    await AsyncStorage.setItem('current_user', 'logged_in');
+    setCurrentUser('logged_in');
+    setShowLoginModal(false);
   };
 
   const handleLogout = async () => {
@@ -194,6 +195,7 @@ export default function HomeScreen() {
           try {
             await AsyncStorage.removeItem('current_user');
             setCurrentUser(null);
+            setShowLoginModal(true);
             setRefreshKey(prev => prev + 1);
           } catch (error) {
             console.error('Error al cerrar sesion:', error);
@@ -421,9 +423,8 @@ export default function HomeScreen() {
         onCancel={handleMontoCancel}
       />
     
-      <LoginModal
+      <SimplePasswordModal
         isVisible={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
         onLogin={handleLogin}
       />
 

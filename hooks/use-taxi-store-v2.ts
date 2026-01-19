@@ -264,7 +264,7 @@ export function useTaxiStoreV2() {
     loadDailyState();
   }, []);
 
-  // Guardar estado en AsyncStorage cuando cambia
+  // Guardar estado en AsyncStorage cuando cambia y sincronizar a Supabase
   useEffect(() => {
     const saveDailyState = async () => {
       try {
@@ -279,6 +279,19 @@ export function useTaxiStoreV2() {
         };
 
         await AsyncStorage.setItem(STORAGE_KEY_DAILY, JSON.stringify(history));
+        console.log('✅ Daily state saved to AsyncStorage');
+        
+        // Sincronizar a Supabase
+        try {
+          console.log('🔄 Calling syncDataToSupabase...');
+          const result = await syncDataToSupabase({
+            date: today,
+            state: state,
+          });
+          console.log('✅ Sync result:', result);
+        } catch (error) {
+          console.warn('❌ Error syncing to Supabase:', error);
+        }
       } catch (error) {
         console.error('Error saving daily state:', error);
       }

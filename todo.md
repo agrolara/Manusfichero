@@ -123,3 +123,22 @@
 - [x] Probar layout expandido
 - [x] Probar reportes
 - [x] Crear checkpoint final
+
+
+## Mejoras Fase 11: Sincronización con Supabase
+- [x] Configurar conexión a Supabase
+- [x] Crear función de sincronización automática
+- [x] Implementar upsert de datos diarios
+- [x] Agregar índice UNIQUE para user_id y date
+- [x] Crear tabla daily_data en Supabase
+- [ ] Verificar que sincronización funciona en navegador web
+- [ ] Implementar sincronización en tiempo real
+- [ ] Crear funciones de lectura desde Supabase
+- [ ] Implementar caché local con validación de Supabase
+- [ ] Agregar manejo de errores de conexión
+
+## Mejoras Fase 12: Branding y Logo
+- [ ] Generar logo personalizado para Full Express
+- [ ] Actualizar assets (icon.png, splash-icon.png, favicon.png)
+- [ ] Actualizar app.config.ts con información de branding
+- [ ] Crear checkpoint final
