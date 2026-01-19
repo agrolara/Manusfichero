@@ -182,14 +182,19 @@ export default function HomeScreen() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert('Cerrar Sesion', 'Deseas cerrar sesion?', [
       { text: 'Cancelar', onPress: () => {} },
       {
         text: 'Cerrar',
         onPress: async () => {
-          await AsyncStorage.removeItem('current_user');
-          setCurrentUser(null);
+          try {
+            await AsyncStorage.removeItem('current_user');
+            setCurrentUser(null);
+            setRefreshKey(prev => prev + 1);
+          } catch (error) {
+            console.error('Error al cerrar sesion:', error);
+          }
         },
         style: 'destructive',
       },

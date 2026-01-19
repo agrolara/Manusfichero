@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState, MobileStats, QueueType, CarreraRecord } from '@/lib/types';
 import { DailyData, DailyHistory } from '@/lib/types-extended';
 
+import { syncDataToSupabase } from '@/lib/supabase-sync';
 const STORAGE_KEY_DAILY = 'full_express_daily';
 const STORAGE_KEY_CURRENT_DATE = 'full_express_current_date';
 
