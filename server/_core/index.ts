@@ -2,16 +2,10 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import path from "path";
-import { fileURLToPath } from "url";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-
-// Definir __dirname para módulos ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -66,11 +60,7 @@ async function startServer() {
     res.json({ ok: true, timestamp: Date.now() });
   });
 
-  // Servir archivos estáticos de la app web
-  const publicPath = path.join(__dirname, "../public");
-  app.use(express.static(publicPath));
-
-  // Servir la aplicación web en la raíz
+  // Ruta raíz - API info
   app.get("/", (_req, res) => {
     res.json({
       message: "Full Express API",
@@ -92,14 +82,9 @@ async function startServer() {
     }),
   );
 
-  // Manejo de rutas no encontradas - servir index.html para SPA
+  // Manejo de rutas no encontradas
   app.use((_req, res) => {
-    const indexPath = path.join(publicPath, "index.html");
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        res.status(404).json({ error: "Route not found" });
-      }
-    });
+    res.status(404).json({ error: "Route not found" });
   });
 
   const preferredPort = parseInt(process.env.PORT || "3000");
