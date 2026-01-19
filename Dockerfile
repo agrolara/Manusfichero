@@ -21,4 +21,4 @@ RUN pnpm build
 EXPOSE 3000
 
 # Comando para iniciar
-CMD ["node", "dist/start.cjs"]
+CMD ["node", "dist/index.js"]
