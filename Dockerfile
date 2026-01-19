@@ -14,11 +14,11 @@ RUN pnpm install --frozen-lockfile
 # Copiar código fuente
 COPY . .
 
-# Build del servidor
+# Build
 RUN pnpm build
 
 # Exponer puerto
 EXPOSE 3000
 
 # Comando para iniciar
-CMD ["node", "dist/index.js"]
+CMD ["pnpm", "start"]

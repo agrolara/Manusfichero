@@ -60,20 +60,6 @@ async function startServer() {
     res.json({ ok: true, timestamp: Date.now() });
   });
 
-  // Ruta raíz - API info
-  app.get("/", (_req, res) => {
-    res.json({
-      message: "Full Express API",
-      status: "running",
-      version: "2.0.0",
-      endpoints: {
-        health: "/api/health",
-        trpc: "/api/trpc",
-        oauth: "/oauth/*"
-      }
-    });
-  });
-
   app.use(
     "/api/trpc",
     createExpressMiddleware({
@@ -81,11 +67,6 @@ async function startServer() {
       createContext,
     }),
   );
-
-  // Manejo de rutas no encontradas
-  app.use((_req, res) => {
-    res.status(404).json({ error: "Route not found" });
-  });
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
