@@ -57,6 +57,16 @@ function reducer(state: AppState, action: Action): AppState {
       const mobileId = action.payload;
       const newState = { ...state };
 
+      // Validar que no este duplicado en ninguna cola
+      const isDuplicate =
+        newState.colas.blanca.includes(mobileId) ||
+        newState.colas.azul.includes(mobileId) ||
+        newState.colas.roja.includes(mobileId);
+
+      if (isDuplicate) {
+        return state; // No hacer nada si ya existe
+      }
+
       if (!newState.moviles[mobileId]) {
         newState.moviles[mobileId] = {
           id: mobileId,
@@ -119,21 +129,16 @@ function reducer(state: AppState, action: Action): AppState {
       if (newState.moviles[mobileId]) {
         newState.moviles[mobileId].cedeCount++;
 
+        const queue = newState.colas[queueType];
+        const index = queue.indexOf(mobileId);
+        if (index !== -1) {
+          queue.splice(index, 1);
+          queue.push(mobileId);
+        }
+
+        // Resetear contador despues del 3er cede
         if (newState.moviles[mobileId].cedeCount >= 3) {
-          const queue = newState.colas[queueType];
-          const index = queue.indexOf(mobileId);
-          if (index !== -1) {
-            queue.splice(index, 1);
-            queue.push(mobileId);
-          }
           newState.moviles[mobileId].cedeCount = 0;
-        } else {
-          const queue = newState.colas[queueType];
-          const index = queue.indexOf(mobileId);
-          if (index !== -1) {
-            queue.splice(index, 1);
-            queue.push(mobileId);
-          }
         }
       }
 
@@ -212,7 +217,7 @@ export function useTaxiStoreV2() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [currentDate, setCurrentDate] = useCallback(() => getCurrentDate(), [])();
 
-  // Cargar estado del día actual al montar
+  // Cargar estado del dia actual al montar
   useEffect(() => {
     const loadDailyState = async () => {
       try {
@@ -220,11 +225,11 @@ export function useTaxiStoreV2() {
         const dailyHistory = await AsyncStorage.getItem(STORAGE_KEY_DAILY);
         const lastDate = await AsyncStorage.getItem(STORAGE_KEY_CURRENT_DATE);
 
-        // Si cambió el día, guardar el anterior y limpiar
+        // Si cambio el dia, guardar el anterior y limpiar
         if (lastDate && lastDate !== today) {
           if (dailyHistory) {
             const history: DailyHistory = JSON.parse(dailyHistory);
-            // Limpiar datos mayores a 30 días
+            // Limpiar datos mayores a 30 dias
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             const cutoffDate = thirtyDaysAgo.toISOString().split('T')[0];
@@ -237,10 +242,10 @@ export function useTaxiStoreV2() {
 
             await AsyncStorage.setItem(STORAGE_KEY_DAILY, JSON.stringify(history));
           }
-          // Reiniciar estado para nuevo día
+          // Reiniciar estado para nuevo dia
           dispatch({ type: 'RESET_STATE' });
         } else if (dailyHistory) {
-          // Cargar estado del día actual
+          // Cargar estado del dia actual
           const history: DailyHistory = JSON.parse(dailyHistory);
           if (history[today]) {
             dispatch({ type: 'LOAD_STATE', payload: history[today].state });
@@ -313,7 +318,7 @@ export function useTaxiStoreV2() {
 
   const resetDay = useCallback(async () => {
     try {
-      // Guardar estado actual del día antes de resetear
+      // Guardar estado actual del dia antes de resetear
       const today = getCurrentDate();
       const dailyHistory = await AsyncStorage.getItem(STORAGE_KEY_DAILY);
       const history: DailyHistory = dailyHistory ? JSON.parse(dailyHistory) : {};

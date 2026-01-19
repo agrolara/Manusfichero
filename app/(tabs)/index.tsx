@@ -12,11 +12,11 @@ import {
 } from 'react-native';
 import { ScreenContainer } from '@/components/screen-container';
 import { useTaxiStoreV2 } from '@/hooks/use-taxi-store-v2';
-import { QueueColumn } from '@/components/queue-column';
+import { QueueColumnV2 } from '@/components/queue-column-v2';
 import { MontoModal } from '@/components/monto-modal';
-import { SummaryTable } from '@/components/summary-table';
 import { MobileHistoryScreen } from '@/components/mobile-history-screen';
 import { StatisticsScreen } from '@/components/statistics-screen';
+import { ReportsScreen } from '@/components/reports-screen';
 import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
 
@@ -36,6 +36,7 @@ export default function HomeScreen() {
     editCarrera,
     deleteCarrera,
     resetDay,
+    getAllDailyHistory,
   } = useTaxiStoreV2();
 
   const inputRef = useRef<TextInput>(null);
@@ -47,11 +48,16 @@ export default function HomeScreen() {
   });
   const [historyMobileId, setHistoryMobileId] = useState<string | null>(null);
   const [showStatistics, setShowStatistics] = useState(false);
+  const [showReports, setShowReports] = useState(false);
 
   const handleAddMobile = () => {
     const id = mobileInput.trim();
     if (id && /^\d+$/.test(id)) {
       addMobile(id);
+      if (addMobile(id) === undefined) {
+        // Si addMobile devuelve undefined, significa que no hizo nada (duplicado)
+        Alert.alert('Aviso', 'Este movil ya esta en las colas');
+      }
       setMobileInput('');
       inputRef.current?.focus();
     } else {
@@ -125,6 +131,15 @@ export default function HomeScreen() {
     );
   };
 
+  if (showReports) {
+    return (
+      <ReportsScreen
+        getAllDailyHistory={getAllDailyHistory}
+        onClose={() => setShowReports(false)}
+      />
+    );
+  }
+
   if (showStatistics) {
     return (
       <StatisticsScreen
@@ -154,7 +169,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
           {/* Header */}
           <View style={[styles.header, { backgroundColor: colors.surface }]}>
             <View>
@@ -165,17 +180,30 @@ export default function HomeScreen() {
                 {currentDate}
               </Text>
             </View>
-            <Pressable
-              style={({ pressed }) => [
-                styles.statsButton,
-                { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
-              ]}
-              onPress={() => setShowStatistics(true)}
-            >
-              <Text style={[styles.statsButtonText, { color: colors.background }]}>
-                Stat
-              </Text>
-            </Pressable>
+            <View style={styles.headerButtons}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.headerButton,
+                  { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
+                ]}
+                onPress={() => setShowStatistics(true)}
+              >
+                <Text style={[styles.headerButtonText, { color: colors.background }]}>
+                  Stat
+                </Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.headerButton,
+                  { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
+                ]}
+                onPress={() => setShowReports(true)}
+              >
+                <Text style={[styles.headerButtonText, { color: colors.background }]}>
+                  Rep
+                </Text>
+              </Pressable>
+            </View>
           </View>
 
           {/* Input y Controles */}
@@ -245,9 +273,9 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Colas */}
-          <View style={[styles.queuesContainer, isMobile && styles.queuesContainerMobile]}>
-            <QueueColumn
+          {/* Colas - Expandidas */}
+          <View style={styles.queuesContainer}>
+            <QueueColumnV2
               queueType="blanca"
               mobileIds={state.colas.blanca}
               mobiles={state.moviles}
@@ -257,7 +285,7 @@ export default function HomeScreen() {
               onViewHistory={handleViewHistory}
               correctionMode={state.correctionMode}
             />
-            <QueueColumn
+            <QueueColumnV2
               queueType="azul"
               mobileIds={state.colas.azul}
               mobiles={state.moviles}
@@ -267,7 +295,7 @@ export default function HomeScreen() {
               onViewHistory={handleViewHistory}
               correctionMode={state.correctionMode}
             />
-            <QueueColumn
+            <QueueColumnV2
               queueType="roja"
               mobileIds={state.colas.roja}
               mobiles={state.moviles}
@@ -279,12 +307,34 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Resumen - Solo en web */}
-          {!isMobile && (
-            <View style={styles.summaryContainer}>
-              <SummaryTable mobiles={state.moviles} totalCaja={state.totalCaja} />
+          {/* Resumen en footer */}
+          <View
+            style={[
+              styles.footerSummary,
+              {
+                backgroundColor: colors.surface,
+                borderTopColor: colors.border,
+              },
+            ]}
+          >
+            <View style={styles.summaryItem}>
+              <Text style={[styles.summaryLabel, { color: colors.muted }]}>
+                Caja
+              </Text>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>
+                ${state.totalCaja.toFixed(0)}
+              </Text>
             </View>
-          )}
+            <View style={styles.summaryDivider} />
+            <View style={styles.summaryItem}>
+              <Text style={[styles.summaryLabel, { color: colors.muted }]}>
+                Moviles
+              </Text>
+              <Text style={[styles.summaryValue, { color: colors.foreground }]}>
+                {Object.keys(state.moviles).length}
+              </Text>
+            </View>
+          </View>
         </View>
       </ScrollView>
 
@@ -316,21 +366,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
   },
   subtitle: {
     fontSize: 11,
     marginTop: 2,
   },
-  statsButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  headerButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statsButtonText: {
+  headerButtonText: {
     fontSize: 10,
     fontWeight: '700',
   },
@@ -392,15 +446,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   queuesContainer: {
+    flex: 1,
     flexDirection: 'row',
     gap: 6,
-    height: 280,
+    minHeight: 300,
   },
-  queuesContainerMobile: {
-    height: 250,
+  footerSummary: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
-  summaryContainer: {
-    marginTop: 6,
-    marginBottom: 8,
+  summaryItem: {
+    alignItems: 'center',
+  },
+  summaryLabel: {
+    fontSize: 10,
+    fontWeight: '500',
+  },
+  summaryValue: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  summaryDivider: {
+    width: 1,
+    height: 30,
   },
 });
