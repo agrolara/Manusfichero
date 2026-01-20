@@ -142,3 +142,11 @@
 - [ ] Actualizar assets (icon.png, splash-icon.png, favicon.png)
 - [ ] Actualizar app.config.ts con información de branding
 - [ ] Crear checkpoint final
+
+
+## Fase 20: Mejoras Post-Deploy
+- [ ] Crear guía para personalizar URL en Netlify
+- [ ] Implementar botón de exportación de reportes diarios en PDF
+- [ ] Probar funcionalidad de exportación
+- [ ] Recompilar y desplegar en Netlify
+- [ ] Verificar que todo funciona correctamente

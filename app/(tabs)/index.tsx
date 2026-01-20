@@ -20,6 +20,7 @@ import { ReportsScreen } from '@/components/reports-screen';
 import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
 import { SimplePasswordModal } from '@/components/simple-password-modal';
+import { ExportPDFButton } from '@/components/export-pdf-button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AdminPanel } from '@/components/admin-panel';
 import { createUser } from '@/lib/supabase-users';
@@ -291,6 +292,16 @@ export default function HomeScreen() {
                   Rep
                 </Text>
               </Pressable>
+              <ExportPDFButton
+                state={state}
+                currentDate={currentDate}
+                historial={Object.values(state.moviles).flatMap(m => m.historial.map(h => ({
+                  timestamp: h.timestamp,
+                  mobileId: m.id,
+                  tipo: h.tipo,
+                  monto: h.monto,
+                })))}
+              />
               <Pressable
                 style={({ pressed }) => [
                   styles.headerButton,
