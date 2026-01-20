@@ -6,7 +6,7 @@ WORKDIR /app
 RUN npm install express
 
 # Copiar archivos web
-COPY index.html ./public/
+COPY index.html ./
 COPY server.js ./
 
 # Exponer puerto
