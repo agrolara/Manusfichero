@@ -1,22 +1,37 @@
-const express = require('express');
+const http = require('http');
+const fs = require('fs');
 const path = require('path');
-const app = express();
+
 const PORT = process.env.PORT || 3000;
-// v3 - Fix path
 
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname)));
+// Leer el archivo index.html una sola vez
+const indexPath = path.join(__dirname, 'index.html');
+const indexContent = fs.readFileSync(indexPath, 'utf-8');
 
-// Ruta raíz
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+const server = http.createServer((req, res) => {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Servir index.html para todas las rutas
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+  res.end(indexContent);
 });
 
-// Manejo de errores 404
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`[web] Full Express server listening on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+  console.error('[web] Server error:', err);
+  process.exit(1);
+});
+
+process.on('SIGTERM', () => {
+  console.log('[web] SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('[web] Server closed');
+    process.exit(0);
+  });
 });
