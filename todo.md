@@ -131,75 +131,14 @@
 - [x] Implementar upsert de datos diarios
 - [x] Agregar índice UNIQUE para user_id y date
 - [x] Crear tabla daily_data en Supabase
-- [x] Verificar que sincronización funciona en navegador web
-- [x] Implementar sincronización en tiempo real
-- [x] Crear funciones de lectura desde Supabase
-- [x] Implementar caché local con validación de Supabase
-- [x] Agregar manejo de errores de conexión
+- [ ] Verificar que sincronización funciona en navegador web
+- [ ] Implementar sincronización en tiempo real
+- [ ] Crear funciones de lectura desde Supabase
+- [ ] Implementar caché local con validación de Supabase
+- [ ] Agregar manejo de errores de conexión
 
 ## Mejoras Fase 12: Branding y Logo
-- [x] Generar logo personalizado para Full Express
-- [x] Actualizar assets (icon.png, splash-icon.png, favicon.png)
-- [x] Actualizar app.config.ts con información de branding
-- [x] Crear checkpoint final
-
-
-## Mejoras Fase 13: Supabase Real-Time (Datos en la Nube)
-- [x] Crear tabla de colas en Supabase (para almacenar móviles en tiempo real)
-- [x] Crear tabla de carreras en Supabase (para historial de transacciones)
-- [x] Implementar lectura en tiempo real desde Supabase al iniciar
-- [x] Implementar escritura en tiempo real a Supabase en cada cambio
-- [x] Crear hook useRealtimeStore para reemplazar useTaxiStoreV2
-- [x] Implementar sincronización bidireccional
-- [x] Agregar caché local opcional para modo offline
-- [x] Probar sincronización entre múltiples dispositivos
-- [x] Verificar que los datos persisten en Supabase
-- [x] Crear checkpoint final
-
-
-## Mejoras Fase 14: Real-Time Listeners (Sincronización Instantánea)
-- [x] Crear hook useRealtimeListeners para escuchar cambios en Supabase
-- [x] Integrar listeners en el hook híbrido
-- [x] Probar sincronización instantánea entre dispositivos
-- [x] Agregar indicador de conexión en tiempo real
-- [x] Manejar reconexión automática
-- [x] Crear checkpoint final
-
-
-## Debugging Fase 15: Sincronización No Funciona
-- [x] Verificar que syncDataToSupabase se está llamando
-- [x] Verificar que los datos se envían a Supabase correctamente
-- [x] Verificar que el Real-Time Listener escucha cambios
-- [x] Corregir flujo de sincronización bidireccional
-- [x] Probar sincronización entre múltiples pestañas
-
-
-## Debugging Fase 16: Corrección de Zona Horaria
-- [x] Corregir getCurrentDate para usar zona horaria local del usuario
-- [x] Probar sincronización con fecha correcta
-- [x] Verificar que los datos se guardan con la fecha correcta
-
-
-## Debugging Fase 17: Persistencia de Datos
-- [x] Verificar que los datos se guardan en AsyncStorage
-- [x] Verificar que los datos se sincronizan a Supabase
-- [x] Verificar que los datos se cargan desde Supabase al iniciar
-- [x] Probar persistencia completa (agregar datos, recargar, verificar que persisten)
-
-
-## Debugging Fase 18: Datos Desaparecen al Reset
-- [x] Identificar que Reset borra datos en Supabase
-- [x] Corregir resetDay() para no sincronizar datos vacíos
-- [x] Agregar protección en syncDataToSupabase()
-- [x] Restaurar datos de 2026-01-19 ($750 móvil 505)
-- [x] Verificar que los datos cargan correctamente desde Supabase
-- [x] Probar que Reset funciona sin borrar datos en Supabase
-
-## Fase 19: Deploy en Railway (Acceso Remoto)
-- [ ] Crear checkpoint con correcciones
-- [ ] Crear cuenta en Railway
-- [ ] Conectar repositorio de GitHub a Railway
-- [ ] Configurar variables de entorno en Railway
-- [ ] Desplegar y obtener URL remota
-- [ ] Verificar acceso remoto desde múltiples dispositivos
-- [ ] Crear documentación de acceso remoto
+- [ ] Generar logo personalizado para Full Express
+- [ ] Actualizar assets (icon.png, splash-icon.png, favicon.png)
+- [ ] Actualizar app.config.ts con información de branding
+- [ ] Crear checkpoint final

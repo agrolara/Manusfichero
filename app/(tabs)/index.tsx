@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { ScreenContainer } from '@/components/screen-container';
-import { useTaxiStoreHybrid } from '@/hooks/use-taxi-store-hybrid';
+import { useTaxiStoreV2 } from '@/hooks/use-taxi-store-v2';
 import { QueueColumnV2 } from '@/components/queue-column-v2';
 import { MontoModal } from '@/components/monto-modal';
 import { MobileHistoryScreen } from '@/components/mobile-history-screen';
@@ -32,8 +32,6 @@ export default function HomeScreen() {
   const {
     state,
     currentDate,
-    syncing,
-    realtimeConnected,
     addMobile,
     assignCarrera,
     cedeTurno,
@@ -43,7 +41,7 @@ export default function HomeScreen() {
     deleteCarrera,
     resetDay,
     getAllDailyHistory,
-  } = useTaxiStoreHybrid();
+  } = useTaxiStoreV2();
 
   const inputRef = useRef<TextInput>(null);
   const [mobileInput, setMobileInput] = useState('');
@@ -264,10 +262,10 @@ export default function HomeScreen() {
           <View style={[styles.header, { backgroundColor: colors.surface }]}>
             <View>
               <Text style={[styles.title, { color: colors.foreground }]}>
-                Full Express {syncing ? '🔄' : realtimeConnected ? '📡' : '☁️'}
+                Full Express
               </Text>
               <Text style={[styles.subtitle, { color: colors.muted }]}>
-                {currentDate} {syncing ? '(Sincronizando...)' : realtimeConnected ? '(En tiempo real)' : ''}
+                {currentDate}
               </Text>
             </View>
             <View style={styles.headerButtons}>

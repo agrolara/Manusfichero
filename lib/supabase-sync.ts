@@ -1,7 +1,7 @@
 import { AppState } from '@/lib/types';
 
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://okmzqnjvxrptqphzjnjq.supabase.co';
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_jSJKMqyhm_hpZ4O-CnnmWg_8YbHJYU8';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 
 // User ID for the single password authentication
 const FIXED_USER_ID = '4c0ed019-874a-4fc4-ad88-7945338dbce8';
@@ -19,16 +19,15 @@ interface DailyDataPayload {
 /**
  * Sincroniza los datos diarios a Supabase
  * Actualiza si existe un registro para la fecha, crea uno nuevo si no existe
- * NO sobrescribe datos existentes con datos vacios (proteccion contra reset accidental)
  */
 export async function syncDataToSupabase(dailyData: any) {
   try {
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.warn('Supabase credentials not configured');
+      console.warn('⚠️ Supabase credentials not configured');
       return false;
     }
 
-    console.log('Starting sync to Supabase...', { date: dailyData.date });
+    console.log('🔄 Starting sync to Supabase...', { date: dailyData.date });
 
     const state: AppState = dailyData.state;
     
@@ -38,14 +37,7 @@ export async function syncDataToSupabase(dailyData: any) {
       return sum + (mobile.historial?.length || 0);
     }, 0);
 
-    console.log('Calculated totals:', { totalCaja, totalCarreras });
-
-    // PROTECCION: Si los datos estan vacios, NO sincronizar
-    // Esto previene que el reset accidental sobrescriba datos en Supabase
-    if (totalCaja === 0 && totalCarreras === 0) {
-      console.log('Skipping sync: data is empty (likely after reset or new day)');
-      return true; // Retornar true para no marcar como error
-    }
+    console.log('📊 Calculated totals:', { totalCaja, totalCarreras });
 
     // First, check if record exists
     const checkUrl = `${SUPABASE_URL}/rest/v1/daily_data?user_id=eq.${FIXED_USER_ID}&date=eq.${dailyData.date}`;
@@ -59,13 +51,13 @@ export async function syncDataToSupabase(dailyData: any) {
     });
 
     const existingRecords = await checkResponse.json();
-    console.log('Existing records:', existingRecords);
+    console.log('🔍 Existing records:', existingRecords);
 
     const now = new Date().toISOString();
 
     if (existingRecords && existingRecords.length > 0) {
       // Update existing record
-      console.log('Updating existing record...');
+      console.log('📝 Updating existing record...');
       const updateUrl = `${SUPABASE_URL}/rest/v1/daily_data?user_id=eq.${FIXED_USER_ID}&date=eq.${dailyData.date}`;
       const updateResponse = await fetch(updateUrl, {
         method: 'PATCH',
@@ -82,19 +74,19 @@ export async function syncDataToSupabase(dailyData: any) {
         }),
       });
 
-      console.log('Update response status:', updateResponse.status);
+      console.log('📡 Update response status:', updateResponse.status);
 
       if (!updateResponse.ok) {
         const errorText = await updateResponse.text();
-        console.error('Error updating in Supabase:', updateResponse.statusText, errorText);
+        console.error('❌ Error updating in Supabase:', updateResponse.statusText, errorText);
         return false;
       }
 
-      console.log('Data updated in Supabase successfully');
+      console.log('✅ Data updated in Supabase successfully');
       return true;
     } else {
       // Create new record
-      console.log('Creating new record...');
+      console.log('➕ Creating new record...');
       const payload: DailyDataPayload = {
         date: dailyData.date,
         user_id: FIXED_USER_ID,
@@ -116,30 +108,30 @@ export async function syncDataToSupabase(dailyData: any) {
         body: JSON.stringify(payload),
       });
 
-      console.log('Create response status:', createResponse.status);
+      console.log('📡 Create response status:', createResponse.status);
 
       if (!createResponse.ok) {
         const errorText = await createResponse.text();
-        console.error('Error creating in Supabase:', createResponse.statusText, errorText);
+        console.error('❌ Error creating in Supabase:', createResponse.statusText, errorText);
         return false;
       }
 
-      console.log('Data created in Supabase successfully');
+      console.log('✅ Data created in Supabase successfully');
       return true;
     }
   } catch (error) {
-    console.error('Error syncing to Supabase:', error);
+    console.error('❌ Error syncing to Supabase:', error);
     return false;
   }
 }
 
 /**
- * Obtiene los datos de un dia especifico desde Supabase
+ * Obtiene los datos de un día específico desde Supabase
  */
 export async function getDataFromSupabase(date?: string) {
   try {
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.warn('Supabase credentials not configured');
+      console.warn('⚠️ Supabase credentials not configured');
       return null;
     }
 
@@ -161,15 +153,15 @@ export async function getDataFromSupabase(date?: string) {
     );
 
     if (!response.ok) {
-      console.error('Error fetching from Supabase:', response.statusText);
+      console.error('❌ Error fetching from Supabase:', response.statusText);
       return null;
     }
 
     const data = await response.json();
-    console.log('Data fetched from Supabase:', data);
+    console.log('📥 Data fetched from Supabase:', data);
     return data;
   } catch (error) {
-    console.error('Error fetching from Supabase:', error);
+    console.error('❌ Error fetching from Supabase:', error);
     return null;
   }
 }
@@ -180,7 +172,7 @@ export async function getDataFromSupabase(date?: string) {
 export async function getAllDataFromSupabase() {
   try {
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.warn('Supabase credentials not configured');
+      console.warn('⚠️ Supabase credentials not configured');
       return null;
     }
 
@@ -199,15 +191,15 @@ export async function getAllDataFromSupabase() {
     );
 
     if (!response.ok) {
-      console.error('Error fetching all data from Supabase:', response.statusText);
+      console.error('❌ Error fetching all data from Supabase:', response.statusText);
       return null;
     }
 
     const data = await response.json();
-    console.log('All data fetched from Supabase:', data);
+    console.log('📥 All data fetched from Supabase:', data);
     return data;
   } catch (error) {
-    console.error('Error fetching all data from Supabase:', error);
+    console.error('❌ Error fetching all data from Supabase:', error);
     return null;
   }
 }
