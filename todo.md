@@ -164,3 +164,17 @@
 - [x] Agregar indicador de conexión en tiempo real
 - [x] Manejar reconexión automática
 - [x] Crear checkpoint final
+
+
+## Debugging Fase 15: Sincronización No Funciona
+- [ ] Verificar que syncDataToSupabase se está llamando
+- [ ] Verificar que los datos se envían a Supabase correctamente
+- [ ] Verificar que el Real-Time Listener escucha cambios
+- [ ] Corregir flujo de sincronización bidireccional
+- [ ] Probar sincronización entre múltiples pestañas
+
+
+## Debugging Fase 16: Corrección de Zona Horaria
+- [x] Corregir getCurrentDate para usar zona horaria local del usuario
+- [x] Probar sincronización con fecha correcta
+- [x] Verificar que los datos se guardan con la fecha correcta

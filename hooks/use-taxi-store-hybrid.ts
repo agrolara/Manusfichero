@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState, MobileStats, QueueType, CarreraRecord } from '@/lib/types';
 import { DailyData, DailyHistory } from '@/lib/types-extended';
 import { syncDataToSupabase } from '@/lib/supabase-sync';
-import { useRealtimeListeners } from '@/hooks/use-realtime-listeners';
+import { usePollingSync } from '@/hooks/use-polling-sync';
 
 const STORAGE_KEY_DAILY = 'full_express_daily';
 const STORAGE_KEY_CURRENT_DATE = 'full_express_current_date';
@@ -43,10 +43,19 @@ function getCurrentTime(): string {
 }
 
 function getCurrentDate(): string {
+  // Usar zona horaria de Santiago de Chile (GMT-3)
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  // Usar Intl.DateTimeFormat para obtener la fecha en zona horaria de Chile
+  const formatter = new Intl.DateTimeFormat('es-CL', {
+    timeZone: 'America/Santiago',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const parts = formatter.formatToParts(now);
+  const year = parts.find(p => p.type === 'year')?.value || '2026';
+  const month = parts.find(p => p.type === 'month')?.value || '01';
+  const day = parts.find(p => p.type === 'day')?.value || '01';
   return `${year}-${month}-${day}`;
 }
 
@@ -214,17 +223,19 @@ export function useTaxiStoreHybrid() {
   const [syncing, setSyncing] = useState(false);
   const [realtimeConnected, setRealtimeConnected] = useState(false);
 
-  // Configurar listeners en tiempo real
-  useRealtimeListeners({
+  // Configurar polling para sincronización desde Supabase
+  usePollingSync({
+    currentDate,
     onDataChange: (remoteData: AppState) => {
       console.log('🔄 Remote data received from Supabase');
       dispatch({ type: 'LOAD_STATE', payload: remoteData });
     },
     onConnectionChange: (connected: boolean) => {
-      console.log('📡 Real-time connection:', connected ? 'Connected' : 'Disconnected');
+      console.log('📡 Supabase connection:', connected ? 'Connected' : 'Disconnected');
       setRealtimeConnected(connected);
     },
     enabled: true,
+    intervalMs: 2000, // Verificar cambios cada 2 segundos
   });
 
   // Cargar estado del día actual al montar
