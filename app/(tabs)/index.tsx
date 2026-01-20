@@ -16,6 +16,7 @@ import { QueueColumnV2 } from '@/components/queue-column-v2';
 import { MontoModal } from '@/components/monto-modal';
 import { MobileHistoryScreen } from '@/components/mobile-history-screen';
 import { StatisticsScreen } from '@/components/statistics-screen';
+import { MonthlyStatisticsScreen } from '@/components/monthly-statistics-screen';
 import { ReportsScreen } from '@/components/reports-screen';
 import { useColors } from '@/hooks/use-colors';
 import { QueueType, ModalState } from '@/lib/types';
@@ -53,6 +54,7 @@ export default function HomeScreen() {
   });
   const [historyMobileId, setHistoryMobileId] = useState<string | null>(null);
   const [showStatistics, setShowStatistics] = useState(false);
+  const [showMonthlyStatistics, setShowMonthlyStatistics] = useState(false);
   const [showReports, setShowReports] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(true);
@@ -224,6 +226,15 @@ export default function HomeScreen() {
     );
   }
 
+  if (showMonthlyStatistics) {
+    return (
+      <MonthlyStatisticsScreen
+        getAllDailyHistory={getAllDailyHistory}
+        onClose={() => setShowMonthlyStatistics(false)}
+      />
+    );
+  }
+
   if (showStatistics) {
     return (
       <StatisticsScreen
@@ -278,7 +289,18 @@ export default function HomeScreen() {
                 onPress={() => setShowStatistics(true)}
               >
                 <Text style={[styles.headerButtonText, { color: colors.background }]}>
-                  Stat
+                  Día
+                </Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.headerButton,
+                  { backgroundColor: colors.success, opacity: pressed ? 0.8 : 1 },
+                ]}
+                onPress={() => setShowMonthlyStatistics(true)}
+              >
+                <Text style={[styles.headerButtonText, { color: colors.background }]}>
+                  Mes
                 </Text>
               </Pressable>
               <Pressable

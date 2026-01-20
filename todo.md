@@ -145,8 +145,17 @@
 
 
 ## Fase 20: Mejoras Post-Deploy
-- [ ] Crear guía para personalizar URL en Netlify
-- [ ] Implementar botón de exportación de reportes diarios en PDF
-- [ ] Probar funcionalidad de exportación
-- [ ] Recompilar y desplegar en Netlify
+- [x] Crear guía para personalizar URL en Netlify
+- [x] Implementar botón de exportación de reportes diarios en HTML
+- [x] Probar funcionalidad de exportación
+- [x] Recompilar y desplegar en Netlify
 - [ ] Verificar que todo funciona correctamente
+
+
+## Fase 21: Mejoras de Interfaz y Estadísticas
+- [x] Agregar estadísticas mensuales totales
+- [x] Implementar botón "Ceder" en las colas (ya existía)
+- [x] Implementar botón "Editar" para corregir montos
+- [x] Reorganizar botones: OK, Ceder, Salir, Editar
+- [ ] Probar funcionalidad completa
+- [ ] Recompilar y desplegar en Netlify

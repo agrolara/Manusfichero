@@ -116,7 +116,7 @@ export function MobileCardV2({
           <Text style={[styles.buttonText, { color: colors.error }]}>Sal</Text>
         </Pressable>
 
-        {correctionMode && onViewHistory && (
+        {onViewHistory && (
           <Pressable
             style={({ pressed }) => [
               styles.button,
@@ -125,7 +125,7 @@ export function MobileCardV2({
             ]}
             onPress={() => onViewHistory(mobile.id)}
           >
-            <Text style={[styles.buttonText, { color: colors.background }]}>H</Text>
+            <Text style={[styles.buttonText, { color: colors.background }]}>Edit</Text>
           </Pressable>
         )}
       </View>
