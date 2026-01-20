@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Express - Sistema de Gestión de Taxis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0a7ea4 0%, #0a5f7f 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 32px;
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .auth-section input {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        .auth-section button {
+            padding: 10px 20px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .auth-section button:hover {
+            background: #ff5252;
+        }
+
+        .auth-section button.login {
+            background: #0a7ea4;
+        }
+
+        .auth-section button.login:hover {
+            background: #085a7f;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .queues {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .queue {
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 300px;
+        }
+
+        .queue.blanca {
+            border-color: #999;
+            background: #f5f5f5;
+        }
+
+        .queue.azul {
+            border-color: #0a7ea4;
+            background: #e6f4fe;
+        }
+
+        .queue.roja {
+            border-color: #d32f2f;
+            background: #ffe6e6;
+        }
+
+        .queue h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .mobile-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-id {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .mobile-amount {
+            color: #0a7ea4;
+            font-weight: bold;
+        }
+
+        .mobile-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .mobile-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #0a7ea4;
+            color: white;
+        }
+
+        .mobile-actions button:hover {
+            background: #085a7f;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input-section input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .input-section button {
+            padding: 10px 20px;
+            background: #0a7ea4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .input-section button:hover {
+            background: #085a7f;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0a7ea4;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0a7ea4;
+        }
+
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #e6f4fe;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .sync-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0a7ea4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .error {
+            background: #ffe6e6;
+            color: #d32f2f;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #e6f7ed;
+            color: #22c55e;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            background: #0a7ea4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-content button:hover {
+            background: #085a7f;
+        }
+
+        .date-display {
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .queues {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .auth-section {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .auth-section input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1><span class="logo">🚕</span> Full Express</h1>
+                <p class="date-display" id="dateDisplay">Cargando...</p>
+            </div>
+            <div class="auth-section">
+                <div id="authStatus" style="display: none;">
+                    <span id="userName">Usuario</span>
+                    <button class="logout" onclick="logout()">Logout</button>
+                </div>
+                <div id="authForm" style="display: flex; gap: 10px; width: 100%;">
+                    <input type="password" id="passwordInput" placeholder="Contraseña" />
+                    <button class="login" onclick="login()">Login</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="errorMessage"></div>
+        <div id="successMessage"></div>
+
+        <div id="appContent" style="display: none;">
+            <div class="sync-indicator">
+                <span class="sync-dot"></span>
+                <span id="syncStatus">Conectado a Supabase</span>
+            </div>
+
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="input-section">
+                    <input type="text" id="mobileInput" placeholder="ID del móvil (ej: 505)" />
+                    <button onclick="addMobile()">Agregar</button>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div>
+                    <div class="card">
+                        <h2>Colas de Despacho</h2>
+                        <div class="queues">
+                            <div class="queue blanca">
+                                <h3>Blanca (<span id="blancaCount">0</span>)</h3>
+                                <div id="blancaQueue"></div>
+                            </div>
+                            <div class="queue azul">
+                                <h3>Azul (<span id="azulCount">0</span>)</h3>
+                                <div id="azulQueue"></div>
+                            </div>
+                            <div class="queue roja">
+                                <h3>Roja (<span id="rojaCount">0</span>)</h3>
+                                <div id="rojaQueue"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <h2>Estadísticas</h2>
+                        <div class="stats">
+                            <div class="stat-box">
+                                <div class="stat-label">Caja Total</div>
+                                <div class="stat-value" id="totalCaja">$0.00</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Móviles</div>
+                                <div class="stat-value" id="totalMobiles">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="amountModal" class="modal">
+        <div class="modal-content">
+            <h2>Registrar Carrera</h2>
+            <p id="modalMobileId"></p>
+            <input type="number" id="amountInput" placeholder="Monto de la carrera" />
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="cancelAmount()">Cancelar</button>
+                <button onclick="confirmAmount()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://okmzqnjvxrptqphzjnjq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_jSJKMqyhm_hpZ4O-CnnmWg_8YbHJYU8';
+        const FIXED_USER_ID = '4c0ed019-874a-4fc4-ad88-7945338dbce8';
+
+        let state = {
+            colas: { blanca: [], azul: [], roja: [] },
+            moviles: {},
+            totalCaja: 0
+        };
+
+        let currentMobileForAmount = null;
+        let isAuthenticated = false;
+
+        function getCurrentDate() {
+            const formatter = new Intl.DateTimeFormat('es-CL', {
+                timeZone: 'America/Santiago',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            const parts = formatter.formatToParts(new Date());
+            const year = parts.find(p => p.type === 'year')?.value || '2026';
+            const month = parts.find(p => p.type === 'month')?.value || '01';
+            const day = parts.find(p => p.type === 'day')?.value || '01';
+            return `${year}-${month}-${day}`;
+        }
+
+        function updateDateDisplay() {
+            const date = getCurrentDate();
+            document.getElementById('dateDisplay').textContent = date;
+        }
+
+        async function login() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === 'full-express') {
+                isAuthenticated = true;
+                document.getElementById('authForm').style.display = 'none';
+                document.getElementById('authStatus').style.display = 'flex';
+                document.getElementById('appContent').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                await loadData();
+                startPolling();
+            } else {
+                showError('Contraseña incorrecta');
+            }
+        }
+
+        function logout() {
+            isAuthenticated = false;
+            document.getElementById('authForm').style.display = 'flex';
+            document.getElementById('authStatus').style.display = 'none';
+            document.getElementById('appContent').style.display = 'none';
+            state = { colas: { blanca: [], azul: [], roja: [] }, moviles: {}, totalCaja: 0 };
+        }
+
+        async function loadData() {
+            try {
+                const date = getCurrentDate();
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/daily_data?user_id=eq.${FIXED_USER_ID}&date=eq.${date}`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0 && data[0].data) {
+                        state = data[0].data;
+                        updateUI();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function addMobile() {
+            const mobileId = document.getElementById('mobileInput').value;
+            if (!mobileId || !/^\d+$/.test(mobileId)) {
+                showError('ID de móvil inválido');
+                return;
+            }
+
+            const isDuplicate = state.colas.blanca.includes(mobileId) ||
+                              state.colas.azul.includes(mobileId) ||
+                              state.colas.roja.includes(mobileId);
+
+            if (isDuplicate) {
+                showError('El móvil ya está en las colas');
+                return;
+            }
+
+            state.colas.blanca.push(mobileId);
+            state.colas.azul.push(mobileId);
+            state.colas.roja.push(mobileId);
+
+            if (!state.moviles[mobileId]) {
+                state.moviles[mobileId] = {
+                    id: mobileId,
+                    blancas: 0,
+                    azules: 0,
+                    rojas: 0,
+                    totalMonto: 0,
+                    historial: [],
+                    cedeCount: 0,
+                    enColas: true
+                };
+            }
+
+            document.getElementById('mobileInput').value = '';
+            updateUI();
+            await syncData();
+        }
+
+        function showMobileOptions(mobileId, queueType) {
+            currentMobileForAmount = { mobileId, queueType };
+            document.getElementById('modalMobileId').textContent = `Móvil: ${mobileId} - Cola: ${queueType}`;
+            document.getElementById('amountInput').value = '';
+            document.getElementById('amountModal').classList.add('active');
+            document.getElementById('amountInput').focus();
+        }
+
+        function cancelAmount() {
+            document.getElementById('amountModal').classList.remove('active');
+            currentMobileForAmount = null;
+        }
+
+        async function confirmAmount() {
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            if (!amount || amount <= 0) {
+                showError('Monto inválido');
+                return;
+            }
+
+            const { mobileId, queueType } = currentMobileForAmount;
+            const mobile = state.moviles[mobileId];
+
+            if (mobile) {
+                mobile.historial.push({
+                    uid: Date.now().toString(),
+                    tipo: queueType,
+                    monto: amount,
+                    hora: new Date().toLocaleTimeString('es-CL'),
+                    timestamp: Date.now()
+                });
+
+                if (queueType === 'blanca') mobile.blancas++;
+                else if (queueType === 'azul') mobile.azules++;
+                else if (queueType === 'roja') mobile.rojas++;
+
+                mobile.totalMonto += amount;
+                state.totalCaja += amount;
+
+                const queueArray = state.colas[queueType];
+                const index = queueArray.indexOf(mobileId);
+                if (index !== -1) {
+                    queueArray.splice(index, 1);
+                    queueArray.push(mobileId);
+                }
+            }
+
+            cancelAmount();
+            updateUI();
+            await syncData();
+            showSuccess('Carrera registrada');
+        }
+
+        function updateUI() {
+            // Update queues
+            ['blanca', 'azul', 'roja'].forEach(queue => {
+                const queueDiv = document.getElementById(`${queue}Queue`);
+                const count = state.colas[queue].length;
+                document.getElementById(`${queue}Count`).textContent = count;
+
+                queueDiv.innerHTML = state.colas[queue].map(mobileId => `
+                    <div class="mobile-card">
+                        <div>
+                            <div class="mobile-id">${mobileId}</div>
+                            <div class="mobile-amount">$${state.moviles[mobileId]?.totalMonto || 0}</div>
+                        </div>
+                        <div class="mobile-actions">
+                            <button onclick="showMobileOptions('${mobileId}', '${queue}')">Carrera</button>
+                            <button onclick="removeMobile('${mobileId}')">Salida</button>
+                        </div>
+                    </div>
+                `).join('');
+            });
+
+            // Update stats
+            document.getElementById('totalCaja').textContent = `$${state.totalCaja.toFixed(2)}`;
+            document.getElementById('totalMobiles').textContent = Object.keys(state.moviles).length;
+        }
+
+        function removeMobile(mobileId) {
+            state.colas.blanca = state.colas.blanca.filter(id => id !== mobileId);
+            state.colas.azul = state.colas.azul.filter(id => id !== mobileId);
+            state.colas.roja = state.colas.roja.filter(id => id !== mobileId);
+            updateUI();
+            syncData();
+        }
+
+        async function syncData() {
+            try {
+                const date = getCurrentDate();
+                const totalCarreras = Object.values(state.moviles).reduce((sum, m) => sum + (m.historial?.length || 0), 0);
+
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/daily_data?user_id=eq.${FIXED_USER_ID}&date=eq.${date}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    },
+                    body: JSON.stringify({
+                        total_caja: state.totalCaja,
+                        total_carreras: totalCarreras,
+                        data: state,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    // Try to create if doesn't exist
+                    await fetch(`${SUPABASE_URL}/rest/v1/daily_data`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        },
+                        body: JSON.stringify({
+                            user_id: FIXED_USER_ID,
+                            date: date,
+                            total_caja: state.totalCaja,
+                            total_carreras: totalCarreras,
+                            data: state,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        })
+                    });
+                }
+            } catch (error) {
+                console.error('Error syncing data:', error);
+            }
+        }
+
+        function startPolling() {
+            setInterval(async () => {
+                if (isAuthenticated) {
+                    await loadData();
+                }
+            }, 2000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.innerHTML = `<div class="error">${message}</div>`;
+            setTimeout(() => { errorDiv.innerHTML = ''; }, 3000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.innerHTML = `<div class="success">${message}</div>`;
+            setTimeout(() => { successDiv.innerHTML = ''; }, 3000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (document.getElementById('mobileInput') === document.activeElement) {
+                    addMobile();
+                } else if (document.getElementById('amountInput') === document.activeElement) {
+                    confirmAmount();
+                }
+            }
+            if (e.key === 'Escape') {
+                cancelAmount();
+            }
+        });
+
+        // Initialize
+        updateDateDisplay();
+    </script>
+</body>
+</html>
