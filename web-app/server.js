@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
+// v2 - Force rebuild
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
@@ -17,5 +18,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`[web] server listening on port ${PORT}`);
+  console.log(`[web] Full Express server listening on port ${PORT}`);
 });
