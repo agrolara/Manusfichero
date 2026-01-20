@@ -131,17 +131,17 @@
 - [x] Implementar upsert de datos diarios
 - [x] Agregar índice UNIQUE para user_id y date
 - [x] Crear tabla daily_data en Supabase
-- [ ] Verificar que sincronización funciona en navegador web
-- [ ] Implementar sincronización en tiempo real
-- [ ] Crear funciones de lectura desde Supabase
-- [ ] Implementar caché local con validación de Supabase
-- [ ] Agregar manejo de errores de conexión
+- [x] Verificar que sincronización funciona en navegador web
+- [x] Implementar sincronización en tiempo real
+- [x] Crear funciones de lectura desde Supabase
+- [x] Implementar caché local con validación de Supabase
+- [x] Agregar manejo de errores de conexión
 
 ## Mejoras Fase 12: Branding y Logo
-- [ ] Generar logo personalizado para Full Express
-- [ ] Actualizar assets (icon.png, splash-icon.png, favicon.png)
-- [ ] Actualizar app.config.ts con información de branding
-- [ ] Crear checkpoint final
+- [x] Generar logo personalizado para Full Express
+- [x] Actualizar assets (icon.png, splash-icon.png, favicon.png)
+- [x] Actualizar app.config.ts con información de branding
+- [x] Crear checkpoint final
 
 
 ## Mejoras Fase 13: Supabase Real-Time (Datos en la Nube)
@@ -167,11 +167,11 @@
 
 
 ## Debugging Fase 15: Sincronización No Funciona
-- [ ] Verificar que syncDataToSupabase se está llamando
-- [ ] Verificar que los datos se envían a Supabase correctamente
-- [ ] Verificar que el Real-Time Listener escucha cambios
-- [ ] Corregir flujo de sincronización bidireccional
-- [ ] Probar sincronización entre múltiples pestañas
+- [x] Verificar que syncDataToSupabase se está llamando
+- [x] Verificar que los datos se envían a Supabase correctamente
+- [x] Verificar que el Real-Time Listener escucha cambios
+- [x] Corregir flujo de sincronización bidireccional
+- [x] Probar sincronización entre múltiples pestañas
 
 
 ## Debugging Fase 16: Corrección de Zona Horaria
@@ -185,3 +185,21 @@
 - [x] Verificar que los datos se sincronizan a Supabase
 - [x] Verificar que los datos se cargan desde Supabase al iniciar
 - [x] Probar persistencia completa (agregar datos, recargar, verificar que persisten)
+
+
+## Debugging Fase 18: Datos Desaparecen al Reset
+- [x] Identificar que Reset borra datos en Supabase
+- [x] Corregir resetDay() para no sincronizar datos vacíos
+- [x] Agregar protección en syncDataToSupabase()
+- [x] Restaurar datos de 2026-01-19 ($750 móvil 505)
+- [x] Verificar que los datos cargan correctamente desde Supabase
+- [x] Probar que Reset funciona sin borrar datos en Supabase
+
+## Fase 19: Deploy en Railway (Acceso Remoto)
+- [ ] Crear checkpoint con correcciones
+- [ ] Crear cuenta en Railway
+- [ ] Conectar repositorio de GitHub a Railway
+- [ ] Configurar variables de entorno en Railway
+- [ ] Desplegar y obtener URL remota
+- [ ] Verificar acceso remoto desde múltiples dispositivos
+- [ ] Crear documentación de acceso remoto

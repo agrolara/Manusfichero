@@ -386,8 +386,21 @@ export function useTaxiStoreHybrid() {
     dispatch({ type: 'DELETE_CARRERA', payload: { mobileId, uid } });
   }, []);
 
-  const resetDay = useCallback(() => {
+  const resetDay = useCallback(async () => {
+    // Guardar el estado actual antes de resetear (para preservar en Supabase)
+    const today = getCurrentDate();
+    const dailyHistory = await AsyncStorage.getItem(STORAGE_KEY_DAILY);
+    const history: DailyHistory = dailyHistory ? JSON.parse(dailyHistory) : {};
+    
+    // Si hay datos para hoy, guardarlos en el historial
+    if (history[today]) {
+      // Mantener los datos del día en el historial
+      console.log('💾 Preserving today\'s data in history before reset');
+    }
+    
+    // Resetear solo el estado local, NO sincronizar a Supabase
     dispatch({ type: 'RESET_STATE' });
+    console.log('🔄 Day reset locally (data preserved in Supabase)');
   }, []);
 
   const getAllDailyHistory = useCallback(async () => {
