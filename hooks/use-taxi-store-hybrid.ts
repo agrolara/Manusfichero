@@ -273,6 +273,35 @@ export function useTaxiStoreHybrid() {
           }
         }
 
+        // Intentar cargar datos desde Supabase si AsyncStorage está vacío
+        const history: DailyHistory = dailyHistory ? JSON.parse(dailyHistory) : {};
+        if (!history[today]) {
+          console.log('Loading data from Supabase...');
+          try {
+            const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+            const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+            
+            if (supabaseUrl && supabaseKey) {
+              const response = await fetch(`${supabaseUrl}/rest/v1/daily_data?date=eq.${today}&select=data`, {
+                headers: {
+                  'apikey': supabaseKey,
+                  'Authorization': `Bearer ${supabaseKey}`,
+                },
+              });
+              
+              if (response.ok) {
+                const responseData = await response.json();
+                if (responseData && responseData.length > 0 && responseData[0].data) {
+                  console.log('Data loaded from Supabase');
+                  dispatch({ type: 'LOAD_STATE', payload: responseData[0].data });
+                }
+              }
+            }
+          } catch (error) {
+            console.warn('Error loading from Supabase:', error);
+          }
+        }
+
         await AsyncStorage.setItem(STORAGE_KEY_CURRENT_DATE, today);
         setCurrentDate(today);
       } catch (error) {

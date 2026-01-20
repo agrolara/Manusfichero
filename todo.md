@@ -178,3 +178,10 @@
 - [x] Corregir getCurrentDate para usar zona horaria local del usuario
 - [x] Probar sincronización con fecha correcta
 - [x] Verificar que los datos se guardan con la fecha correcta
+
+
+## Debugging Fase 17: Persistencia de Datos
+- [x] Verificar que los datos se guardan en AsyncStorage
+- [x] Verificar que los datos se sincronizan a Supabase
+- [x] Verificar que los datos se cargan desde Supabase al iniciar
+- [x] Probar persistencia completa (agregar datos, recargar, verificar que persisten)
