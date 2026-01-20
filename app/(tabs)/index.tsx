@@ -33,6 +33,7 @@ export default function HomeScreen() {
     state,
     currentDate,
     syncing,
+    realtimeConnected,
     addMobile,
     assignCarrera,
     cedeTurno,
@@ -263,10 +264,10 @@ export default function HomeScreen() {
           <View style={[styles.header, { backgroundColor: colors.surface }]}>
             <View>
               <Text style={[styles.title, { color: colors.foreground }]}>
-                Full Express {syncing ? '🔄' : '☁️'}
+                Full Express {syncing ? '🔄' : realtimeConnected ? '📡' : '☁️'}
               </Text>
               <Text style={[styles.subtitle, { color: colors.muted }]}>
-                {currentDate} {syncing ? '(Sincronizando...)' : ''}
+                {currentDate} {syncing ? '(Sincronizando...)' : realtimeConnected ? '(En tiempo real)' : ''}
               </Text>
             </View>
             <View style={styles.headerButtons}>

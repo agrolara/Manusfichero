@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState, MobileStats, QueueType, CarreraRecord } from '@/lib/types';
 import { DailyData, DailyHistory } from '@/lib/types-extended';
 import { syncDataToSupabase } from '@/lib/supabase-sync';
+import { useRealtimeListeners } from '@/hooks/use-realtime-listeners';
 
 const STORAGE_KEY_DAILY = 'full_express_daily';
 const STORAGE_KEY_CURRENT_DATE = 'full_express_current_date';
@@ -211,6 +212,20 @@ export function useTaxiStoreHybrid() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [currentDate, setCurrentDate] = useState(getCurrentDate());
   const [syncing, setSyncing] = useState(false);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+
+  // Configurar listeners en tiempo real
+  useRealtimeListeners({
+    onDataChange: (remoteData: AppState) => {
+      console.log('🔄 Remote data received from Supabase');
+      dispatch({ type: 'LOAD_STATE', payload: remoteData });
+    },
+    onConnectionChange: (connected: boolean) => {
+      console.log('📡 Real-time connection:', connected ? 'Connected' : 'Disconnected');
+      setRealtimeConnected(connected);
+    },
+    enabled: true,
+  });
 
   // Cargar estado del día actual al montar
   useEffect(() => {
@@ -349,6 +364,7 @@ export function useTaxiStoreHybrid() {
     state,
     currentDate,
     syncing,
+    realtimeConnected,
     addMobile,
     assignCarrera,
     cedeTurno,
